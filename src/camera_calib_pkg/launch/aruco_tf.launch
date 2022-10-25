@@ -1,0 +1,13 @@
+<launch>
+    <arg name="load_calibration" default="false" />
+    <arg name="verify_calibration" default="false" />
+    <arg name="num_poses" default="20" />
+    <arg name="record_calib_points" default="false" />
+
+    <node name="aruco_tf" pkg="lab_2" type="aruco_tf" output="screen">
+        <param name="load_calibration" value="$(arg load_calibration)" />
+        <param name="verify_calibration" value="$(arg verify_calibration)" />
+        <param name="num_poses" value="$(arg num_poses)" />
+        <param name="record_calib_points" value="$(arg record_calib_points)" />
+    </node>
+</launch>

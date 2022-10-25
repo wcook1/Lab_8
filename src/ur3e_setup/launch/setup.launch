@@ -1,0 +1,9 @@
+<launch>
+    <arg name="dist" default="0.5"/>
+    <arg name="wid" default="1.05"/>
+
+    <node name="scene_setup" pkg="ur3e_setup" type="scene_setup" output="screen">
+        <param name="distance" value="$(arg dist)"/>
+        <param name="width" value="$(arg wid)"/>
+    </node>
+</launch>

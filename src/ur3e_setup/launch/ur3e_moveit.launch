@@ -1,0 +1,53 @@
+<launch>
+    <!-- By default, we are not in debug mode -->
+    <arg name="debug" default="false" />
+
+    <!--
+    By default, hide joint_state_publisher's GUI
+    
+    MoveIt!'s "demo" mode replaces the real robot driver with the joint_state_publisher.
+    The latter one maintains and publishes the current joint configuration of the simulated robot.
+    It also provides a GUI to move the simulated robot around "manually".
+    This corresponds to moving around the real robot without the use of MoveIt.
+    -->
+    <arg name="use_gui" default="false" />
+    <arg name="use_rviz" default="true" />
+
+    <!-- specify the planning pipeline -->
+    <arg name="pipeline" default="ompl" />
+
+    <!-- By default, we will not load the robot_description -->
+    <arg name="load_robot_description" default="false"/>
+
+    <!-- We have the robot connected, so publish joint states -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <param name="use_gui" value="false"/>
+        <rosparam param="source_list">[/joint_states]</rosparam>
+    </node>
+
+    <!-- Given the published joint states, publish tf for the robot links -->
+    <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" /> -->
+
+
+    <!-- If needed, broadcast static tf for robot root -->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="base_link" args="0 0 1 0 0 0 1 /map /base_link_inertia 10" /> -->
+
+    <!-- Run the main MoveIt! executable without trajectory execution (we do not have controllers configured by default) -->
+    <arg name="controller" default="pos_joint_traj_controller" />
+    <include file="$(find ur3e_moveit_config)/launch/move_group.launch">
+        <arg name="allow_trajectory_execution" value="true"/>
+        <arg name="info" value="true"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="pipeline" value="$(arg pipeline)"/>
+        <arg name="load_robot_description" value="$(arg load_robot_description)"/>
+        <arg name="controller" value="$(arg controller)" />
+    </include>
+
+    <!-- Run Rviz and load the default config to see the state of the move_group node -->
+    <include file="$(find ur3e_moveit_config)/launch/moveit_rviz.launch" if="$(arg use_rviz)">
+        <arg name="rviz_config" value="$(find ur3e_moveit_config)/launch/moveit.rviz"/>
+        <arg name="debug" value="$(arg debug)"/>
+    </include>
+
+
+</launch>

@@ -1,0 +1,7 @@
+<launch>
+  <arg name="controller" default="scaled_pos_joint_traj_controller" />
+  <rosparam file="$(find ur3e_moveit_config)/config/ros_controllers.yaml" subst_value="True">$(arg controller)</rosparam>
+  <param name="use_controller_manager" value="false"/>
+  <param name="trajectory_execution/execution_duration_monitoring" value="false"/>
+  <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
+</launch>

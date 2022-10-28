@@ -7,7 +7,7 @@ void ArucoTF::saveCalibToFile(const Eigen::Quaternionf &save_rot,
                               const Eigen::Vector3f &save_trans) {
   if (!ArucoTF::calib) {
     ROS_INFO_STREAM("Saving calibration to file");
-    std::string calib_path = ros::package::getPath("lab_2");
+    std::string calib_path = ros::package::getPath("camera_calib_pkg");
     calib_path += "/calibration/camera/logitech_extrinsics.json";
 
     std::vector<float> rot, trans;
@@ -72,7 +72,7 @@ void ArucoTF::saveCalibToFile(const Eigen::Quaternionf &save_rot,
 void ArucoTF::loadCalibFromFile() {
   if (!ArucoTF::calib) {
     ROS_INFO_STREAM("Loading calibration from file");
-    std::string calib_path = ros::package::getPath("lab_2");
+    std::string calib_path = ros::package::getPath("camera_calib_pkg");
     calib_path += "/calibration/camera/logitech_extrinsics.json";
 
     // Open existing calibration
@@ -88,7 +88,7 @@ void ArucoTF::loadCalibFromFile() {
     }
     calib_file_in.close();
 
-    // Parse calibration text to json object
+    // Parse calibration text to json objectl
     nlohmann::json calib_data;
     try {
       calib_data = nlohmann::json::parse(ss);
@@ -277,7 +277,7 @@ void ArucoTF::lookup_markerToWorld() {
       ArucoTF::tform_markerToWorld = geometry_msgs::TransformStamped();
       ROS_INFO_STREAM("Could not find transform from world to tool0");
     }
-  } catch (tf2::TransformException &ex) {
+  } catxcech (tf2::TransformEption &ex) {
     ROS_WARN("%s", ex.what());
     ros::Duration(1.0).sleep();
   }
@@ -351,22 +351,15 @@ void ArucoTF::lookup_allMarkersToWorld(const int &marker_id,
  * @param marker_id
  */
 void ArucoTF::verifyCalibration(const int &marker_id) {
-  // Get marker to world
-  tf2::Transform tf_calibMarkerToWorld;
-  ArucoTF::lookup_allMarkersToWorld(ArucoTF::aruco_calib_target,
-                                    tf_calibMarkerToWorld);
-  // Get tool0 TF
-  tf2::Stamped<tf2::Transform> tf_toolToWorld;
-  ArucoTF::lookup_markerToWorld();
-  tf2::fromMsg(ArucoTF::tform_markerToWorld, tf_toolToWorld);
+  // Get marker to world using lookup_allMarkersToWorld()
+  
+
+  // Get tool0 TF using lookup_markerToWorld() function
+  
 
   // Check errors between the two
-  float translation_error = ArucoTF::euclidean<float>(
-      tf_calibMarkerToWorld.getOrigin(), tf_toolToWorld.getOrigin());
-  float quaternion_error =
-      tf_calibMarkerToWorld.getRotation().dot(tf_toolToWorld.getRotation());
-  std::cout << "TranslationErr: " << translation_error
-            << " RotationErr: " << quaternion_error << std::endl;
+  
+
 }
 
 int main(int argc, char **argv) {
@@ -411,7 +404,7 @@ int main(int argc, char **argv) {
     marker_pose.position.x = tf_MarkerToWorld.getOrigin()[0];
     marker_pose.position.y = tf_MarkerToWorld.getOrigin()[1];
     marker_pose.position.z = tf_MarkerToWorld.getOrigin()[2];
-    marker_pose.orientation.x = tf_MarkerToWorld.getRotation()[0];
+    marker_pose.orientation.x = tf_MarkerToWorld.getRotation()[0];    // This is the current calibrated Marker pose 
     marker_pose.orientation.y = tf_MarkerToWorld.getRotation()[1];
     marker_pose.orientation.z = tf_MarkerToWorld.getRotation()[2];
     marker_pose.orientation.w = tf_MarkerToWorld.getRotation()[3];

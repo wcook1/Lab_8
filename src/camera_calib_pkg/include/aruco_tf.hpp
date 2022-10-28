@@ -216,4 +216,7 @@ class ArucoTF {
   void verifyCalibration(const int &marker_id);
   Eigen::MatrixXf samples_camToMarker, samples_markerToWorld;
 
+  std::vector<geometry_msgs::Pose> calibrated_marker_poses;
+  std::vector<geometry_msgs::Pose> actual_marker_poses;
+
 };

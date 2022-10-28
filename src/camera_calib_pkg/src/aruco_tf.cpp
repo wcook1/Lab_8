@@ -269,10 +269,10 @@ geometry_msgs::Transform ArucoTF::lookup_camToMarker(const int &marker_id) {
 void ArucoTF::lookup_markerToWorld() {
   // TF2 listener for marker to world
   try {
-    if (ArucoTF::tfBuffer.canTransform("base_link_inertia", "tool0", ros::Time(0))) {
+    if (ArucoTF::tfBuffer.canTransform("base_link", "tool0", ros::Time(0))) {
       ROS_INFO_STREAM("Getting tool0 to world");
       ArucoTF::tform_markerToWorld =
-          tfBuffer.lookupTransform("base_link_inertia", "tool0", ros::Time(0));
+          tfBuffer.lookupTransform("base_link", "tool0", ros::Time(0));
     } else {
       ArucoTF::tform_markerToWorld = geometry_msgs::TransformStamped();
       ROS_INFO_STREAM("Could not find transform from world to tool0");
@@ -289,7 +289,7 @@ void ArucoTF::lookup_markerToWorld() {
 void ArucoTF::broadcast_camToWorld() {
   ROS_INFO_STREAM_THROTTLE(10, "Broadcasting camera to world");
   ArucoTF::tform_camToWorld.header.stamp = ros::Time::now();
-  ArucoTF::tform_camToWorld.header.frame_id = "base_link_inertia";
+  ArucoTF::tform_camToWorld.header.frame_id = "base_link";
   ArucoTF::tform_camToWorld.child_frame_id = "logitech_webcam";
   ArucoTF::tform_camToWorld.transform = tf2::toMsg(ArucoTF::tf_camToWorld);
   ArucoTF::br_camToWorld.sendTransform(ArucoTF::tform_camToWorld);
@@ -315,7 +315,7 @@ void ArucoTF::broadcast_allMarkersToWorld() {
     // Convert back to geometry_msgs::TransformStamped
     geometry_msgs::TransformStamped tform_newMarkerToWorld;
     tform_newMarkerToWorld.header.stamp = ros::Time::now();
-    tform_newMarkerToWorld.header.frame_id = "base_link_inertia";
+    tform_newMarkerToWorld.header.frame_id = "base_link";
     tform_newMarkerToWorld.child_frame_id = "marker_" + std::to_string(i);
     tform_newMarkerToWorld.transform = tf2::toMsg(tf_newMarkerToWorld);
 
@@ -383,7 +383,7 @@ int main(int argc, char **argv) {
   // Verify calibration
   n.param<bool>("verify_calibration", verify_calib, false);
   // Number of poses to use for calibration
-  n.param<int>("num_poses", num_poses, 2);
+  n.param<int>("num_poses", num_poses, 15);
 
   ROS_INFO("----------------------------------------------------------");
   // Set number of poses to capture for calibration
@@ -400,9 +400,22 @@ int main(int argc, char **argv) {
     calibrate_cam.verifyCalibration(1);
   }
 
+  tf2::Transform tf_MarkerToWorld;  // Use this variable to get marker poses
+  geometry_msgs::Pose marker_pose;
+
   while (n.ok()) {
     calibrate_cam.broadcast_camToWorld();
     calibrate_cam.broadcast_allMarkersToWorld();
+    calibrate_cam.lookup_allMarkersToWorld(5, tf_MarkerToWorld);
+
+    marker_pose.position.x = tf_MarkerToWorld.getOrigin()[0];
+    marker_pose.position.y = tf_MarkerToWorld.getOrigin()[1];
+    marker_pose.position.z = tf_MarkerToWorld.getOrigin()[2];
+    marker_pose.orientation.x = tf_MarkerToWorld.getRotation()[0];
+    marker_pose.orientation.y = tf_MarkerToWorld.getRotation()[1];
+    marker_pose.orientation.z = tf_MarkerToWorld.getRotation()[2];
+    marker_pose.orientation.w = tf_MarkerToWorld.getRotation()[3];
+
     ros::spinOnce();
     rate.sleep();
   }

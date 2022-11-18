@@ -277,7 +277,7 @@ void ArucoTF::lookup_markerToWorld() {
       ArucoTF::tform_markerToWorld = geometry_msgs::TransformStamped();
       ROS_INFO_STREAM("Could not find transform from world to tool0");
     }
-  } catxcech (tf2::TransformEption &ex) {
+  } catch (tf2::TransformException &ex) {
     ROS_WARN("%s", ex.what());
     ros::Duration(1.0).sleep();
   }
@@ -351,14 +351,26 @@ void ArucoTF::lookup_allMarkersToWorld(const int &marker_id,
  * @param marker_id
  */
 void ArucoTF::verifyCalibration(const int &marker_id) {
-  // Get marker to world using lookup_allMarkersToWorld()
-  
+  int sample_cnt = 0;
+  ROS_INFO_STREAM("Move robot to pose...");
+  ROS_INFO_STREAM("Press ENTER to record sample.");
 
-  // Get tool0 TF using lookup_markerToWorld() function
-  
+  while (sample_cnt < ArucoTF::num_samples) {
+    ROS_INFO_STREAM("Pose: " << sample_cnt + 1 << "/"
+                        << ArucoTF::num_samples);
+    char c = getchar();
 
-  // Check errors between the two
-  
+    // Get marker to world using lookup_allMarkersToWorld()
+
+    // Get tool0 TF using lookup_markerToWorld() function
+
+    // Calculate the 7 dimensional error (x,y,z,qx,qy,qz,qw) between the two
+
+    sample_cnt++;
+  }
+  ROS_INFO_ONCE("Verification samples gathered");
+
+  // Once the errors are gathered, calculate sample mean vector and sample covariance matrix
 
 }
 

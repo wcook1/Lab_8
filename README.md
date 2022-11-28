@@ -27,7 +27,7 @@ xhost +local:docker
 4. Run the following command to run the docker container:
 
 ```console
-docker run -it --rm --name UR3Container --net=host --pid=host --privileged --env="DISPLAY=$DISPLAY" --volume="$PWD:/home/${USER}/workspace/src" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --volume=”/dev:/dev:rw" --ulimit rtprio=99 --ulimit rttime=-1 ur3e_image:latest
+docker run -it --rm --name UR3Container --net=host --pid=host --privileged --env="DISPLAY=$DISPLAY" --volume="$PWD:/home/${USER}/workspace/src" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --volume="/dev:/dev:rw" --ulimit rtprio=99 --ulimit rttime=-1 ur3e_image:latest
 ```
 
 5. Run the following commands:
@@ -48,11 +48,7 @@ roslaunch ur_robot_driver ur3e_bringup.launch robot_ip:=192.168.77.22 kinematics
 ```
 
 ```console
-roslaunch ur3e_moveit_config ur3e_moveit_planning_execution.launch
-```
-
-```console
-roslaunch ur3e_moveit_config moveit_rviz.launch rviz_config:=$(rospack find ur3e_moveit_config)/launch/moveit.rviz
+roslaunch ur_robot_driver example_rviz.launch
 ```
 
 8. Now run the following command in a different terminal to start the camera and the ArUco tag tracking functionality:

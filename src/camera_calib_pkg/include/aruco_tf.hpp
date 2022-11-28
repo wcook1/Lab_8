@@ -170,7 +170,7 @@ class ArucoTF {
   // Marker used for calibration
   const int aruco_calib_target = 1;
   // Markers used for tracking
-  const std::vector<int> aruco_track_targets = {5};
+  const std::vector<int> aruco_track_targets = {0, 1, 2, 3, 4, 5};
   // Check if calibration done#include "../include/aruco_tf.hpp"
   bool calib = false;
   // Reuse existing calibration

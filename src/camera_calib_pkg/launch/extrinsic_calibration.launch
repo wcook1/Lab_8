@@ -23,7 +23,7 @@
     <!-- Start aruco tracker -->
     <group if="$(arg aruco_tracker)">
         <node name="aruco_detect" pkg="aruco_detect" type="aruco_detect" output="screen">
-            <param name="fiducial_len" value="0.05" />
+            <param name="fiducial_len" value="0.04" />
             <param name="dictionary" value="5" />
             <param name="publish_images" value="true" />
             <param name="publish_fiducial_tf" value="false" />
@@ -38,12 +38,12 @@
     <!-- Show outputs -->
     <group if="$(arg show_output)">
         <!-- Show raw image -->
-        <node name="raw_output" pkg="image_view" type="image_view" respawn="true" output="screen">
+        <!-- <node name="raw_output" pkg="image_view" type="image_view" respawn="true" output="screen">
             <param name="autosize" value="false" />
             <remap from="image" to="$(arg camera_name)/image_raw" />
-        </node>
+        </node> -->
         <!-- Show marker results -->
-        <node name="marker_results" pkg="image_view" type="image_view" respawn="true" output="screen">
+        <node name="marker_results" pkg="rqt_image_view" type="rqt_image_view" respawn="true" output="screen">
             <param name="autosize" value="false" />
             <remap from="image" to="$(arg camera_name)/fiducial_images" />
         </node>

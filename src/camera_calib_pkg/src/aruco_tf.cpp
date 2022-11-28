@@ -299,27 +299,34 @@ void ArucoTF::broadcast_camToWorld() {
  * @brief Broadcast marker pose from camera frame to world frame
  */
 void ArucoTF::broadcast_allMarkersToWorld() {
-  for (auto i : ArucoTF::aruco_track_targets) {
-    ROS_INFO_STREAM_THROTTLE(10, "Broadcasting marker_" << i
-                                    << " to world");
-    // Get marker_i to cam
-    geometry_msgs::Transform tform_camToNewMarker =
-        ArucoTF::lookup_camToMarker(i);
-    tf2::Transform tf_camToNewMarker;
-    tf2::fromMsg(tform_camToNewMarker, tf_camToNewMarker);
 
-    // Transform to world frame
-    tf2::Transform tf_newMarkerToWorld =
-        ArucoTF::tf_camToWorld * tf_camToNewMarker;
+  fiducial_msgs::FiducialTransformArray::ConstPtr fiducial_msg =
+      ros::topic::waitForMessage<fiducial_msgs::FiducialTransformArray>(
+          ArucoTF::aruco_transform_topic);
 
-    // Convert back to geometry_msgs::TransformStamped
-    geometry_msgs::TransformStamped tform_newMarkerToWorld;
-    tform_newMarkerToWorld.header.stamp = ros::Time::now();
-    tform_newMarkerToWorld.header.frame_id = "base_link";
-    tform_newMarkerToWorld.child_frame_id = "marker_" + std::to_string(i);
-    tform_newMarkerToWorld.transform = tf2::toMsg(tf_newMarkerToWorld);
+  // Lookup all markers
+  for (fiducial_msgs::FiducialTransform marker : fiducial_msg->transforms) {
+    // Check if marker id is in the list
+    if (std::count(ArucoTF::aruco_track_targets.begin(), ArucoTF::aruco_track_targets.end(), marker.fiducial_id)) {
+      ROS_INFO_STREAM_THROTTLE(10, "Broadcasting marker_" << marker.fiducial_id << " to world");
 
-    ArucoTF::br_markersToWorld.sendTransform(tform_newMarkerToWorld);
+      geometry_msgs::Transform tform_camToNewMarker = marker.transform;
+      tf2::Transform tf_camToNewMarker;
+      tf2::fromMsg(tform_camToNewMarker, tf_camToNewMarker);
+
+      // Transform to world frame
+      tf2::Transform tf_newMarkerToWorld =
+          ArucoTF::tf_camToWorld * tf_camToNewMarker;
+
+      // Convert back to geometry_msgs::TransformStamped
+      geometry_msgs::TransformStamped tform_newMarkerToWorld;
+      tform_newMarkerToWorld.header.stamp = ros::Time::now();
+      tform_newMarkerToWorld.header.frame_id = "base_link";
+      tform_newMarkerToWorld.child_frame_id = "marker_" + std::to_string(marker.fiducial_id);
+      tform_newMarkerToWorld.transform = tf2::toMsg(tf_newMarkerToWorld);
+
+      ArucoTF::br_markersToWorld.sendTransform(tform_newMarkerToWorld);          
+    }
   }
 }
 
@@ -411,7 +418,7 @@ int main(int argc, char **argv) {
   while (n.ok()) {
     calibrate_cam.broadcast_camToWorld();
     calibrate_cam.broadcast_allMarkersToWorld();
-    calibrate_cam.lookup_allMarkersToWorld(5, tf_MarkerToWorld);
+    // calibrate_cam.lookup_allMarkersToWorld(5, tf_MarkerToWorld);
 
     marker_pose.position.x = tf_MarkerToWorld.getOrigin()[0];
     marker_pose.position.y = tf_MarkerToWorld.getOrigin()[1];

@@ -368,8 +368,14 @@ void ArucoTF::verifyCalibration(const int &marker_id) {
     char c = getchar();
 
     // Get marker to world using lookup_allMarkersToWorld()
+    tf2::Transform tf_calibMarkerToWorld;
+    ArucoTF::lookup_allMarkersToWorld(ArucoTF::aruco_calib_target,
+                                      tf_calibMarkerToWorld);
 
     // Get tool0 TF using lookup_markerToWorld() function
+    tf2::Stamped<tf2::Transform> tf_toolToWorld;
+    ArucoTF::lookup_markerToWorld();
+    tf2::fromMsg(ArucoTF::tform_markerToWorld, tf_toolToWorld);
 
     // Calculate the 7 dimensional error (x,y,z,qx,qy,qz,qw) between the two
 

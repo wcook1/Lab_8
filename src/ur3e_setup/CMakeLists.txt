@@ -1,31 +1,23 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(ur3e_setup)
 
 add_compile_options(-std=c++11)
 add_compile_options(-lpthread)
 
-find_package(catkin REQUIRED COMPONENTS	roscpp moveit_wrapper)
-
-
-# Eigen
-find_package(Eigen3 REQUIRED)
-if (Eigen3_FOUND)
-	message(STATUS "Eigen3 found")
-else ()
-	message(FATAL_ERROR "Eigen3 not found")
-endif ()
-
-include_directories(
-		include
-		${catkin_INCLUDE_DIRS}
-		${EIGEN3_INCLUDE_DIRS}
+find_package(catkin REQUIRED COMPONENTS	
+	roscpp 
+	moveit_msgs 
+	moveit_core 
+	moveit_ros_planning_interface
+	moveit_ros_planning
 )
 
 catkin_package(
-		INCLUDE_DIRS include
 		CATKIN_DEPENDS
-		roscpp moveit_wrapper
+		roscpp moveit_msgs moveit_core moveit_ros_planning_interface moveit_ros_planning
 )
+
+include_directories(include ${catkin_INCLUDE_DIRS})
 #-------------------------------------------------------------------------#
 
 # Tactile Controller

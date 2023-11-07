@@ -12,14 +12,35 @@
 
     <!-- Author tags are optional, multiple are allowed, one per tag -->
     <author email="kganguly@cs.umd.edu">Kanishka Ganguly</author>
+    <!-- Ivan Penskiy modified this package in Fall 2023 -->
 
     <buildtool_depend>catkin</buildtool_depend>
 
     <build_depend>roscpp</build_depend>
     <build_depend>rospy</build_depend>
-    <build_depend>moveit_wrapper</build_depend>    
+    <build_depend>moveit_msgs</build_depend>
+    <build_depend>moveit_core</build_depend>    
+    <build_depend>moveit_ros_planning_interface</build_depend>    
+    <build_depend>moveit_ros_planning</build_depend>    
+    <build_depend>geometry_msgs</build_depend>
+    <build_depend>shape_msgs</build_depend>
 
     <exec_depend>roscpp</exec_depend>
     <exec_depend>rospy</exec_depend>
-    <exec_depend>moveit_wrapper</exec_depend>
+    <exec_depend>ur_description</exec_depend>
+    <exec_depend>urdf</exec_depend>
+    <exec_depend>xacro</exec_depend>    
+    <exec_depend>tf</exec_depend>
+    <exec_depend>joint_state_controller</exec_depend>
+    <exec_depend>joint_trajectory_controller</exec_depend>
+    <exec_depend>robot_state_publisher</exec_depend>
+    <exec_depend>ur_gazebo</exec_depend>
+    <exec_depend>moveit_core</exec_depend>
+    <exec_depend>moveit_msgs</exec_depend>
+    <exec_depend>moveit_ros_planning_interface</exec_depend>
+    <exec_depend>moveit_ros_planning</exec_depend>
+    <exec_depend>geometry_msgs</exec_depend>
+    <exec_depend>shape_msgs</exec_depend>
+    
+    
 </package>

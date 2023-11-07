@@ -12,64 +12,75 @@ The first thing you have to do is make the first set of measurements for the cal
 
 1. Run the following command to download files for this lab into your folder:
 
-```console
+```bash
 git clone https://github.com/ENRE467/Lab_8.git
 ```
 
 2. Navigate to `Lab_8/src` directory using the `cd` command.
 
-3. Run the following command so that you can see the GUI applications from docker container in the screen of the host pc:
 
-```console
+3. Launch Visual Studio Code (VSC):
+
+```bash
+code .
+```
+
+4. Run the following command so that you can see the GUI applications from docker container in the screen of the host pc:
+
+```bash
 xhost +local:docker
 ```
 
-4. Run the following command to run the docker container:
+5. Run the following command to run the docker container:
 
-```console
-docker run -it --rm --name UR3Container --net=host --pid=host --privileged --env="DISPLAY=$DISPLAY" --volume="$PWD:/home/${USER}/workspace/src" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --volume="/dev:/dev:rw" --ulimit rtprio=99 --ulimit rttime=-1 ur3e_image:latest
+```bash
+docker run -it --rm --name UR3Container --net=host --pid=host --ipc=host --privileged --env="DISPLAY=$DISPLAY" --volume="$PWD:/home/${USER}/catkin_ws/src" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --volume="/dev:/dev:rw" --ulimit rtprio=99 --ulimit rttime=-1 ur3e_image:latest
 ```
 
-5. Run the following commands:
+6. Run the following commands:
 
-```console
+```bash
 catkin build
 ```
-```console
-source ~/workspace/devel/setup.bash
+```bash
+source ~/catkin_ws/devel/setup.bash
 ```
 
-6. Using tmux, split the terminal window into multiple terminals.
+7. Using tmux, split the terminal window into multiple terminals:
 
-7. Start up the real ur3e robot using the tablet and run the following commands in order in different terminals:
+```bash
+tmux new-session \; \split-window -v \; \split-window -h \; \select-pane -t 1 \; \split-window -h
+```
 
-```console
-roslaunch ur_robot_driver ur3e_bringup.launch robot_ip:=192.168.77.22 kinematics_config:=$(rospack find ur_calibration)/calib/ur3e_calib.yaml z_height:=0.766
+8. Start up the real ur3e robot using the tablet and run the following commands in order in different terminals:
+
+```bash
+roslaunch ur3e_setup ur3e_bringup_mrc.launch robot_ip:=192.168.77.22 kinematics_config:=$(rospack find ur3e_setup)/config/ur3e_calib.yaml z_height:=0.77
 ```
 
 ```console
-roslaunch ur_robot_driver example_rviz.launch
+roslaunch ur3e_setup example_rviz.launch
 ```
 
-8. Now run the following command in a different terminal to start the camera and the ArUco tag tracking functionality:
+9. Now run the following command in a different terminal to start the camera and the ArUco tag tracking functionality:
 
-```console
+```bash
 roslaunch camera_calib_pkg extrinsic_calibration.launch aruco_tracker:=true show_output:=true
 ```
 
-9. In a different terminal, run the following command to start the code for recording calibration data:
+10. In a different terminal, run the following command to start the code for recording calibration data:
 
-```console
+```bash
 roslaunch camera_calib_pkg aruco_tf.launch num_poses:=15
 ```
 
-10. Move the UR3e arm’s end effector to at least 15 different poses and press enter to record that pose for calibration. Make sure that the aruco tag is in the view of the camera. Once you have recorded the poses, the calibration data will be saved in `camera_calib_pkg/calibration/camera/logitech_extrinsics.json` file.
+11. Move the UR3e arm’s end effector to at least 15 different poses and press enter to record that pose for calibration. Make sure that the aruco tag is in the view of the camera. Once you have recorded the poses, the calibration data will be saved in `camera_calib_pkg/calibration/camera/logitech_extrinsics.json` file.
 
-11. At this point the calibration is tentatively complete. We do not know how accurate it is. In order to determine the accuracy you need to a move the end effector to a different, but also representative, set of 15 points. In order to evaluate the accuracy, you need to perform Step 12.
+12. At this point the calibration is tentatively complete. We do not know how accurate it is. In order to determine the accuracy you need to a move the end effector to a different, but also representative, set of 15 points. In order to evaluate the accuracy, you need to perform Step 12.
 
-12. First you have to complete the `verify_calibration()` function in `aruco_tf.cpp`. You need to compute the errors between the calibrated camera-based poses of the new points and the corresponding angle-encoder based poses. Then, compute the vector of sample means and the sample covariance matrix. You may use the `Eigen` library for vector and matrix operations.
+13. First you have to complete the `verify_calibration()` function in `aruco_tf.cpp`. You need to compute the errors between the calibrated camera-based poses of the new points and the corresponding angle-encoder based poses. Then, compute the vector of sample means and the sample covariance matrix. You may use the `Eigen` library for vector and matrix operations.
 
-13. Stop the program in the terminal in which you did Step 9 and run the following command to load your saved calibration and verify it:
+14. Stop the program in the terminal in which you did Step 9 and run the following command to load your saved calibration and verify it:
 
 ```console
 roslaunch camera_calib_pkg aruco_tf.launch load_calibration:=true verify_calibration:=true num_poses:=15

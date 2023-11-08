@@ -31,13 +31,13 @@ code .
 xhost +local:docker
 ```
 
-5. Run the following command to run the docker container:
+5. Run the following command to launch the docker container:
 
 ```bash
 docker run -it --rm --name UR3Container --net=host --pid=host --ipc=host --privileged --env="DISPLAY=$DISPLAY" --volume="$PWD:/home/${USER}/catkin_ws/src" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --volume="/dev:/dev:rw" --ulimit rtprio=99 --ulimit rttime=-1 ur3e_image:latest
 ```
 
-6. Run the following commands:
+6. Build and setup the workspace environment of your ROS package:
 
 ```bash
 catkin build
@@ -52,14 +52,16 @@ source ~/catkin_ws/devel/setup.bash
 tmux new-session \; \split-window -v \; \split-window -h \; \select-pane -t 1 \; \split-window -h
 ```
 
-8. Start up the real ur3e robot using the tablet and run the following commands in order in different terminals:
+8. Copy the calibrated kinematics configuration file from the `Desktop/ENEE467 IMPORTANT` folder to the `Lab_8/src/ur3e_setup/config` folder.
+
+9. Start up the real ur3e robot using the tablet and run the following commands in order in different terminals:
 
 ```bash
 roslaunch ur3e_setup ur3e_bringup_mrc.launch robot_ip:=192.168.77.22 kinematics_config:=$(rospack find ur3e_setup)/config/ur3e_calib.yaml z_height:=0.77
 ```
 
-```console
-roslaunch ur3e_setup example_rviz.launch
+```bash
+roslaunch ur3e_setup ur3e_rviz.launch
 ```
 
 9. Now run the following command in a different terminal to start the camera and the ArUco tag tracking functionality:
@@ -67,6 +69,7 @@ roslaunch ur3e_setup example_rviz.launch
 ```bash
 roslaunch camera_calib_pkg extrinsic_calibration.launch aruco_tracker:=true show_output:=true
 ```
+**Note:** if image_viewer didn't spawn with the correct topic, switch it manually to `/logitech_webcam/fiducial_images`.
 
 10. In a different terminal, run the following command to start the code for recording calibration data:
 
@@ -82,6 +85,6 @@ roslaunch camera_calib_pkg aruco_tf.launch num_poses:=15
 
 14. Stop the program in the terminal in which you did Step 9 and run the following command to load your saved calibration and verify it:
 
-```console
+```bash
 roslaunch camera_calib_pkg aruco_tf.launch load_calibration:=true verify_calibration:=true num_poses:=15
 ```

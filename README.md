@@ -81,7 +81,7 @@ roslaunch camera_calib_pkg aruco_tf.launch num_poses:=15
 
 12. At this point the calibration is tentatively complete. We do not know how accurate it is. In order to determine the accuracy you need to a move the end effector to a different, but also representative, set of 15 points. In order to evaluate the accuracy, you need to perform Step 12.
 
-13. First you have to complete the `verify_calibration()` function in `aruco_tf.cpp`. You need to compute the errors between the calibrated camera-based poses of the new points and the corresponding angle-encoder based poses. Then, compute the vector of sample means and the sample covariance matrix. You may use the `Eigen` library for vector and matrix operations.
+13. First you have to complete the `verifyCalibration()` function in `aruco_tf.cpp`. You need to compute the errors between the calibrated camera-based poses of the new points and the corresponding angle-encoder based poses. Then, compute the vector of sample means and the sample covariance matrix. You may use the `Eigen` library for vector and matrix operations.
 
 14. Stop the program in the terminal in which you did Step 9 and run the following command to load your saved calibration and verify it:
 

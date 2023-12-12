@@ -362,6 +362,9 @@ void ArucoTF::verifyCalibration(const int &marker_id) {
   ROS_INFO_STREAM("Move robot to pose...");
   ROS_INFO_STREAM("Press ENTER to record sample.");
 
+  // std::vector<float> test_quats;
+  std::vector<Eigen::VectorXf> error_matrix;
+
   while (sample_cnt < ArucoTF::num_samples) {
     ROS_INFO_STREAM("Pose: " << sample_cnt + 1 << "/"
                         << ArucoTF::num_samples);
@@ -372,18 +375,68 @@ void ArucoTF::verifyCalibration(const int &marker_id) {
     ArucoTF::lookup_allMarkersToWorld(ArucoTF::aruco_calib_target,
                                       tf_calibMarkerToWorld);
 
+
+    ROS_INFO_STREAM("PHASE 1");
     // Get tool0 TF using lookup_markerToWorld() function
     tf2::Stamped<tf2::Transform> tf_toolToWorld;
     ArucoTF::lookup_markerToWorld();
     tf2::fromMsg(ArucoTF::tform_markerToWorld, tf_toolToWorld);
-
+    ROS_INFO_STREAM("PHASE 2");
     // Calculate the 7 dimensional error (x,y,z,qx,qy,qz,qw) between the two
+    Eigen::Quaternionf camera_quaternion;
+    Eigen::Vector3f camera_vector;
+    Eigen::Quaternionf IK_quaternion;
+    Eigen::Vector3f IK_vector;
 
+    ArucoTF::tf2TransformToEigen(tf_calibMarkerToWorld,camera_quaternion,camera_vector);
+    ArucoTF::tf2TransformToEigen(tf_toolToWorld,IK_quaternion,IK_vector);
+    ROS_INFO_STREAM("PHASE 3");
+    // float test_quat = sqrt(pow(camera_quaternion.x,2) + pow(camera_quaternion.y,2) + pow(camera_quaternion.z,2) + pow(camera_quaternion.w,2));
+    // test_quats.push_back(test_quat);
+
+    Eigen::Vector3f camera_vals = camera_quaternion.toRotationMatrix().eulerAngles(0,1,2);
+    Eigen::Vector3f IK_vals = IK_quaternion.toRotationMatrix().eulerAngles(0,1,2);
+    ROS_INFO_STREAM("PHASE 4");
+    Eigen::Vector3f orientation_error = camera_vals - IK_vals;
+    Eigen::Vector3f position_error = camera_vector - IK_vector;
+    ROS_INFO_STREAM("PHASE 5");
+    Eigen::VectorXf error_vector(6);
+    error_vector << position_error, orientation_error;
+
+    ROS_INFO_STREAM("ERROR VECTOR: " << error_vector);
+    error_matrix.push_back(error_vector);
+    ROS_INFO_STREAM("PHASE 6");
     sample_cnt++;
   }
   ROS_INFO_ONCE("Verification samples gathered");
 
   // Once the errors are gathered, calculate sample mean vector and sample covariance matrix
+
+  ROS_INFO_STREAM("Error Vector Matrix: " << error_matrix);
+  // ROS_INFO_STREAM("Test Quats Matrix: " << test_quats);
+
+  Eigen::VectorXf sum_of_error = Eigen::VectorXf::Zero(6);
+  Eigen::MatrixXf covariance_matrix = Eigen::MatrixXf::Zero(6,6);
+
+  for (const auto& error: error_matrix) {
+      sum_of_error += error;
+  }
+
+  sum_of_error = sum_of_error / ArucoTF::num_samples;
+
+  ROS_INFO_STREAM("Mean Error Vector: " << sum_of_error);
+
+  
+
+  for (const auto& error: error_matrix) {
+    Eigen::VectorXf term1 = error - sum_of_error;
+    Eigen::RowVectorXf term2 = term1.transpose();
+    covariance_matrix += term1 * term2; 
+  }
+
+  covariance_matrix = covariance_matrix / (ArucoTF::num_samples - 1);
+
+  ROS_INFO_STREAM("Covariance Matrix: " << covariance_matrix);
 
 }
 
